@@ -12,16 +12,25 @@ k = n*R;
 
 [H,G] = getHG(n,R);
 
+A = cell(1,n);
+B = cell(1,n-k);
+
+for vn=1:n
+    A{vn} = find(H(:,vn));   % Find the indexes of the check nodes in which this variable is involved
+end
+for cn=1:(n-k)
+    B{cn} = find(H(cn,:));   % Find the indexes of the variable nodes involved in this check
+end
+
+
 sigmaw2 = 1/(10^(gammaDB/10));
 
 %%%%%%% ENCODER %%%%%%%
 
 nCW = ceil(mu/k);               % Number of codewords
-Nshrt = nCW*k - mu;             % Number of padding bits
-u_in = [ u_input zeros(1,Nshrt) ];
+Npad = nCW*k - mu;             % Number of padding bits
+u_in = [ u_input zeros(1,Npad) ];
 c = zeros(n,nCW);
-G = double(G.x);
-H = double(H.x);
 for i=1:nCW
     payload = u_in((i-1)*k+1:i*k)';
     c(:,i) = mod(G*payload,2);
@@ -53,53 +62,56 @@ r = reshape(r,n,length(r)/n);
 %%% MESSAGE PASSING DECODER %%%
 
 for i=1:nCW                 % For each codeword    
-    llr = zeros(n,1);
-    llr_est = llr;          % Each element is the LLR given from the sum of all the LLR sent 
+    L = zeros(1,n);
+              % Each element is the LLR given from the sum of all the LLR sent 
                             % to the variable i from the corresponding check nodes 
-    llr_int = llr;
+    
     M = zeros(n-k,n);
+    E = zeros(n-k,n);
 
-    for j=1:length(llr)
-        llr_int(j) = -2*r(j,i)/sigmaw2;      % Intrinsic information LLR
+    s = zeros(1,n);
+    for j=i:n        
+        s(j) = -2*r(j,i)/sigmaw2;      % Intrinsic information LLR        
     end
+    M = ones(n-k,1) * s;
     
-    
-    for ii=1:30               
-        llr = llr_int + llr_est;        
+    for ii=1:50         
+        % For each check node compute the messages to the variable nodes        
+        for cn=1:(n-k)
+            for vn=B{cn}                                           
+                inM = M(cn,B{cn});
+                inM(B{cn}==vn) = [];
+                E(cn,vn) = prod(sign(inM))*(lntanh(sum(lntanh(abs(inM)))));                
+            end            
+        end          
+        
+        % For each variable nodes compute the extrinsing information
+        for vn=1:n            
+            L(vn) = sum(E(A{vn},vn)) - 2*r(vn,i)/sigmaw2;             
+        end                       
         
         % Get the estimated output from the llr
         yCap = zeros(n,1);      
-        yCap(llr<0) = 1;
+        yCap(L<0) = 1;
         
         
         % If the estimated codeword satisfies
         % all the check rules break the cycle        
-        if(sum(mod(H*yCap,2))==0)                         
+        if(sum(mod(H*yCap,2))==0)  
+            disp('Check ok');
             break;
-        end
-    
-        % For each check node compute the messages to the variable nodes        
-        for cn=1:(n-k)
-            idx = find(H(cn,:));   % Find the indexes of the variable nodes involved in this check
-            for vn=idx   
-                %M(cn,vn) = cnMess(vn,cn,idx,llr);                                
-                inLLR = llr(idx,1);
-                inLLR(idx==vn) = [];
-                M(cn,vn) = prod(sign(inLLR))*(lntanh(sum(lntanh(abs(inLLR)))));
-            end            
-        end    
-        
-        % Bound the LLR from the check nodes to the variable nodes to prevent numerical instability
-        M(M>40) = 200;
-        M(M<-40) = -200;
-        
-        % For each variable nodes compute the extrinsing information
-        for vn=1:n
-            idx = find(H(:,vn));  
-            llr_est(vn) = sum(M(idx,vn));
-            %llr_est(vn) = vnMess(vn,idx,M);        
-        end
-       
+        else
+            for vn=1:n
+                for cn=A{vn}
+                    idx = A{vn};
+                    idx(A{vn}==cn) = [];
+                    M(cn,vn) = sum(E(idx,vn)) - 2*r(vn,i)/sigmaw2;
+                end
+            end
+            % Bound the LLR from the check nodes to the variable nodes to prevent numerical instability
+            M(M>200) = 200;
+            M(M<-200) = -200;
+        end                                     
     end
     % Finally extract the payload from the codeword
     % quite easy since the code is in systematic form

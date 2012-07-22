@@ -72,7 +72,8 @@ else
     save(['Matrix/',num2str(n),'_',rStr],'H');
     save(['Matrix/',num2str(n),'_',rStr],'G','-append');
 end
-
+G = double(G.x);
+H = double(H.x);
 
 end
 
