@@ -65,21 +65,19 @@ for i=1:nCW                 % For each codeword
     L = zeros(1,n);
               % Each element is the LLR given from the sum of all the LLR sent 
                             % to the variable i from the corresponding check nodes 
-    
-    M = zeros(n-k,n);
+        
     E = zeros(n-k,n);
-
-    s = zeros(1,n);
+    
     for j=i:n        
-        s(j) = -2*r(j,i)/sigmaw2;      % Intrinsic information LLR        
+        L(j) = -2*r(j,i)/sigmaw2;      % Intrinsic information LLR        
     end
-    M = ones(n-k,1) * s;
+    
     
     for ii=1:50         
         % For each check node compute the messages to the variable nodes        
         for cn=1:(n-k)
             for vn=B{cn}                                           
-                inM = M(cn,B{cn});
+                inM = L(B{cn});
                 inM(B{cn}==vn) = [];
                 E(cn,vn) = prod(sign(inM))*(lntanh(sum(lntanh(abs(inM)))));                
             end            
@@ -90,6 +88,10 @@ for i=1:nCW                 % For each codeword
             L(vn) = sum(E(A{vn},vn)) - 2*r(vn,i)/sigmaw2;             
         end                       
         
+        % Bound the LLR from the check nodes to the variable nodes to prevent numerical instability
+        L(L>20) = 20;
+        L(L<-20) = -20;
+            
         % Get the estimated output from the llr
         yCap = zeros(n,1);      
         yCap(L<0) = 1;
@@ -99,18 +101,7 @@ for i=1:nCW                 % For each codeword
         % all the check rules break the cycle        
         if(sum(mod(H*yCap,2))==0)  
             disp('Check ok');
-            break;
-        else
-            for vn=1:n
-                for cn=A{vn}
-                    idx = A{vn};
-                    idx(A{vn}==cn) = [];
-                    M(cn,vn) = sum(E(idx,vn)) - 2*r(vn,i)/sigmaw2;
-                end
-            end
-            % Bound the LLR from the check nodes to the variable nodes to prevent numerical instability
-            M(M>200) = 200;
-            M(M<-200) = -200;
+            break;                    
         end                                     
     end
     % Finally extract the payload from the codeword
