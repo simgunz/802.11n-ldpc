@@ -1,6 +1,6 @@
-function [ H, G ] = getHG( n, R )
-%BUILDH Creates the parity check matrix H reading the prototype from file for
-% a codeword length n and rate R
+function [ H, G, Z ] = buildHG( n, R )
+%BUILDHG Creates the parity check matrix H and the generator matrix G
+%(reading the prototype from file) for a codeword length n and rate R
 
 Zsize = [27, 54, 81];           % Square submatrices available size
 
