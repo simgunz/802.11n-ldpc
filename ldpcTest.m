@@ -4,16 +4,16 @@ close all;
 
 %%% TUNABLE PARAMETERS %%%
 
-mu = 1000;         % Input length
-iter = 3 ;         % Number of simulations (10000 for good results)
-EbN0step = 0.5;    % Set to 0.5 to speed things up
+mu = 1000000;         % Input length
+iter = 1 ;         % Number of simulations (10000 for good results)
+EbN0step = 0.25;    % Set to 0.5 to speed things up
 
 R=1/2;             % Available rates 1/2, 2/3, 3/4, 5/6
 
 %%%%%% SIMULATION %%%%%%%%
 
 %EbN0 = 1:EbN0step:9;
-EbN0dB = 1:EbN0step:8;
+EbN0dB = 1:EbN0step:2;
 %EbN0dB = fliplr(EbN0dB);
 EbN0 = 10.^(EbN0dB/10);
 %EbN0dB = 10*log10(EbN0);
@@ -36,10 +36,10 @@ for k=1:length(gamma)
         u_input = round(rand(1,mu));       % Random input sequence
         u_output1 = ldpcTxSystem( u_input, R, gammaDB(k) );
         Pbit1(k) = Pbit1(k) + sum(u_input ~= u_output1);
-        u_output2 = ldpcTxSystemWrong( u_input, R, gammaDB(k) );
-        Pbit2(k) = Pbit2(k) + sum(u_input ~= u_output2);
-        u_output3 = uncodedTxSystem( u_input, gammaUncDB(k) );
-        Pbit3(k) = Pbit3(k) + sum(u_input ~= u_output3);
+        %u_output2 = ldpcTxSystemWrong( u_input, R, gammaDB(k) );
+        %Pbit2(k) = Pbit2(k) + sum(u_input ~= u_output2);
+        %u_output3 = uncodedTxSystem( u_input, gammaUncDB(k) );
+        %Pbit3(k) = Pbit3(k) + sum(u_input ~= u_output3);
     end
     Pbit1(k) = Pbit1(k)/(mu*iter);
     if(Pbit1(k)==0)
@@ -56,8 +56,8 @@ for k=1:length(gamma)
     
     semilogy(EbN0dB,Pbit1,'--rs');
     hold on;
-    plot(EbN0dB,Pbit2,'--gs');
-    plot(EbN0dB,Pbit3,'--bs');
+    %plot(EbN0dB,Pbit2,'--gs');
+    %plot(EbN0dB,Pbit3,'--bs');
     hold off;
     mkdir('output');
     save('output/workspace');
