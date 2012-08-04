@@ -1,6 +1,6 @@
 function [ H, Z ] = buildH( n, R )
 %BUILDH Creates the parity check matrix H (reading the prototype from file)
-%for a codeword length n and rate R
+% for codeword length n and rate R
 
 Zsize = [27, 54, 81];           % Square submatrices available size
 
@@ -37,7 +37,7 @@ else
     H = zeros(row*Z,col*Z);
 
     % Prototype matrix
-    % If the element (i,j) is >= 0 the corresponding submatrix will be a column circular
+    % If the element (i,j) is >= 0 the corresponding submatrix will be a right column circular
     % shift of the identy matrix by the number of position indicated by the element
     % otherwise the submatrix will be a zero matrix
 
@@ -54,7 +54,7 @@ else
     end
     
     mkdir('Matrix');
-    save(['Matrix/H',num2str(n),'_',rStr],'H');
+    save(['Matrix/H',num2str(n),'_',rStr],'H');     % Store the matrix to save computation time
 end
 
 end

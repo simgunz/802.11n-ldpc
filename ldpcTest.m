@@ -1,4 +1,4 @@
-clc;
+% clc;
 clear all;
 close all;
 
@@ -7,6 +7,9 @@ close all;
 mu = 1000000;         % Input length
 iter = 1 ;         % Number of simulations (10000 for good results)
 EbN0step = 0.25;    % Set to 0.5 to speed things up
+
+mexEnabled = 1;             % Enable the C++ version of the decoder
+backSubstitution = 1;       % Enable encoding by back substitution
 
 R=1/2;             % Available rates 1/2, 2/3, 3/4, 5/6
 
