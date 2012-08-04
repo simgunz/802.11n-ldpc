@@ -24,9 +24,8 @@ else
     C1 = inv(C);            % Very slow operation
     G = [eye(k);C1*B];
     
-    CHECK = gfH*G;
-    CHECK = CHECK.x;
-    if sum(CHECK(:))
+    CHECK = gfH*G;    
+    if any(CHECK(:))
         disp('G is not correct');
         return
     end
