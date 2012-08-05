@@ -1,10 +1,10 @@
-% clc;
+clc;
 clear all;
 close all;
 
-%%% TUNABLE PARAMETERS %%%
+%% TUNABLE PARAMETERS %%
 
-mu = 1000000;         % Input length
+mu = 10^6;         % Input length
 iter = 1 ;         % Number of simulations (10000 for good results)
 EbN0step = 0.25;    % Set to 0.5 to speed things up
 
@@ -13,70 +13,76 @@ backSubstitution = 1;       % Enable encoding by back substitution
 
 R=1/2;             % Available rates 1/2, 2/3, 3/4, 5/6
 
-%%%%%% SIMULATION %%%%%%%%
+%% PRESET %%
+EbN0dB = 1:EbN0step:3;
 
-%EbN0 = 1:EbN0step:9;
-EbN0dB = 1:EbN0step:2;
-%EbN0dB = fliplr(EbN0dB);
-EbN0 = 10.^(EbN0dB/10);
-%EbN0dB = 10*log10(EbN0);
-
-gamma = 2*R*EbN0;
-gammaUnc = 2*EbN0;
-gammaDB = 10*log10(gamma);
-gammaUncDB = 10*log10(gammaUnc);
-
-Pbit1 = ones(1,length(gamma));
-Pbit2 = ones(1,length(gamma));
-Pbit3 = ones(1,length(gamma));
-
-h = figure;
-
-pause(1);
-tic
-for k=1:length(gamma)
-    for i=1:iter
-        u_input = round(rand(1,mu));       % Random input sequence
-        u_output1 = ldpcTxSystem( u_input, R, gammaDB(k) );
-        Pbit1(k) = Pbit1(k) + sum(u_input ~= u_output1);
-        %u_output2 = ldpcTxSystemWrong( u_input, R, gammaDB(k) );
-        %Pbit2(k) = Pbit2(k) + sum(u_input ~= u_output2);
-        %u_output3 = uncodedTxSystem( u_input, gammaUncDB(k) );
-        %Pbit3(k) = Pbit3(k) + sum(u_input ~= u_output3);
-    end
-    Pbit1(k) = Pbit1(k)/(mu*iter);
-    if(Pbit1(k)==0)
-        Pbit1(k)=10^-7;
-    end
-    Pbit2(k) = Pbit2(k)/(mu*iter);
-    if(Pbit2(k)==0)
-        Pbit2(k)=10^-7;
-    end
-    Pbit3(k) = Pbit3(k)/(mu*iter);
-    if(Pbit3(k)==0)
-        Pbit3(k)=10^-7;
-    end    
-    
-    semilogy(EbN0dB,Pbit1,'--rs');
-    hold on;
-    %plot(EbN0dB,Pbit2,'--gs');
-    %plot(EbN0dB,Pbit3,'--bs');
-    hold off;
-    mkdir('output');
-    save('output/workspace');
-    saveas(h,'output/figure');
-    saveas(h,'output/figure','pdf');
-    pause(1);
+preset = 0;
+% 0: Iteration test
+% 1: Rate 1/2 accurate test
+% 2: Rate 1/2 longer input, less accurate test
+% 3: Rate comparison less accurate test
+% 4: Manual
+switch(preset)
+    case 0:
+        mu = 10^6;
+        R = 1/2;
+        iter = 20;
+        ldpcIter = 1:50;
+        EbN0 = 2.5;        
+    case 1:
+        mu = 10^6;
+        R = 1/2;
+        iter = 100;
+        break;
+    case 2:
+        mu = 10^7;
+        R = 1/2;
+        iter = 10;
+        break;
+    case 3:
+        mu = 10^6;
+        R = [1/2, 2/3, 3/4, 5/6];
+        iter = 24;
+        break;
 end
+
+%% SIMULATION %%
+
+
+gammaDB = EbN0dB + 10*log(2*R);
+
+ber_ldpc = zeros(iter,length(gamma),length(R));
+fer_ldpc = zeros(iter,length(gamma),length(R));
+
+tic
+if preset == 0
+    for j=1:length(ldpcIter)
+        parfor i=1:iter
+            u_input = round(rand(1,mu));       % Random input sequence
+            [u_output, ber_ldpc(i,j), fer_ldpc(i,j)] = ldpcTxSystem( u_input, R, gammaDB, mexEnabled, backSubstitution, ldpcIter(j));
+            %u_output2 = ldpcTxSystemWrong( u_input, R, gammaDB(k) );
+            %Pbit2(k) = Pbit2(k) + sum(u_input ~= u_output2);
+        end    
+    end
+else
+    for k=1:length(R)
+        for j=1:length(gamma)
+            parfor i=1:iter
+                u_input = round(rand(1,mu));       % Random input sequence
+                [u_output, ber_ldpc(i,j,k), fer_ldpc(i,j,k)] = ldpcTxSystem( u_input, R, gammaDB(k), mexEnabled, backSubstitution);
+                %u_output2 = ldpcTxSystemWrong( u_input, R, gammaDB(k) );
+                %Pbit2(k) = Pbit2(k) + sum(u_input ~= u_output2);
+            end    
+        end
+    end
+end
+        
 time = toc
 
+ber_ldpc = sum(ber_ldpc)/iter;
+fer_ldpc = sum(fer_ldpc)/iter;
 
-%hold;
-%line([0,10],[1e-5,1e-5],'Color','r');
+%% PLOT %%
 
-legend('LDPC Simulated BER','Bad LDPC Simulated BER','Uncoded BER');
-xlabel('Eb/N0 [dB]');
-ylabel('Pbit');
+%% SAVE DATA %%
 save('output/workspace');
-saveas(h,'output/figure');
-saveas(h,'output/figure','pdf');
