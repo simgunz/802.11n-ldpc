@@ -44,20 +44,21 @@ u_in = [ u_input zeros(1,Npad) ];
 
 if backSubstitution
     c = zeros(n,nCW);
-    H1 = H(:,1:12*Z);
-    H2_1 = H(:,12*Z+1:13*Z);    
-    %tic;
+    H1 = H(:,1:k);
+    H2 = H(:,(k+1):(k+Z));    
+    
     for i=1:nCW
         payload = u_in((i-1)*k+1:i*k)';        
         s = H1 * payload;
         s = reshape(s,Z,(n-k)/Z);
         p1 = mod(sum(s,2),2);
-        temp = H2_1 * p1;
+        temp = H2 * p1;
         temp = reshape(temp,Z,(n-k)/Z);
         stilda = mod(s + temp,2);
         prevp2 = 0;
-        p2 = zeros(11*Z,1);
-        for j=1:11
+        ll = length(stilda(1,:)) - 1;
+        p2 = zeros(ll*Z,1);
+        for j=1:ll
             prevp2 = mod(stilda(:,j) + prevp2,2);
             p2((j-1)*Z+1:j*Z) = prevp2;            
         end
@@ -92,7 +93,7 @@ r = reshape(r,n,length(r)/n);
 
 %%% MESSAGE PASSING DECODER %%%
 
-u_out = zeros(k,length(u_in)/k);
+u_out = zeros(1,length(u_in));
 sigmaw2 = 1/(10^(gammaDB/10));
 
 checkOK = zeros(1,nCW);
@@ -102,8 +103,8 @@ checkOK = zeros(1,nCW);
     
 for i=1:nCW                 % For each codeword            
 
-    L = zeros(1,n);         % Each element is the LLR of the corresponding variable node 
-    M = ones(n-k,1) * (-2*r(:,i)/sigmaw2)';    % Initialize the LLR with the intrinsic information                
+    L = zeros(1,n);                           % Each element is the LLR of the corresponding variable node 
+    M = ones(n-k,1) * (-2*r(:,i)/sigmaw2)';   % Initialize the LLR with the intrinsic information                
         
     for ii=1:iteration
          
@@ -139,9 +140,7 @@ for i=1:nCW                 % For each codeword
             break;
         else         
             if mexEnabled
-                %tic;
                 M = vnMess(E,A,(2*r(:,i)/sigmaw2)');
-                %b = b + toc;
             else            
                 for vn=1:n
                     for cn=A{vn}                    
@@ -155,7 +154,7 @@ for i=1:nCW                 % For each codeword
 
     % Finally extract the payload from the codeword
     % quite easy since the code is in systema form
-    u_out(:,i) = yCap(1:k,1);    
+    u_out(1,((i-1)*k+1):(i*k)) = yCap(1:k,1);    
 end
 
 % Remove the padding bits

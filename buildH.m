@@ -53,7 +53,9 @@ else
         end
     end
     
-    mkdir('Matrix');
+    if ~exist('Matrix','dir')
+        mkdir('Matrix');
+    end
     save(['Matrix/H',num2str(n),'_',rStr],'H');     % Store the matrix to save computation time
 end
 
