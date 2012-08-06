@@ -27,16 +27,16 @@ EbN0dB = 1:EbN0step:2.5; %Eb/N0 values
 
 switch preset
     case 0,
-        mu = 10^6;
+        mu = 10^5;
         R = 1/2;
-        iter = 20;
-        ldpcIter = 1:50;
-        EbN0dB = 2.5;
+        iter = 3;
+        ldpcIter = 15:25;
+        EbN0dB = 1.75;
     case 1,
-        mu = 10^6;
+        mu = 10^5;
         R = 1/2;
-        iter = 5;
-        EbN0dB = 1:EbN0step:2.5;                
+        iter = 4;
+        EbN0dB = 1:EbN0step:2;                
     case 2,
         mu = 10^7;
         R = 1/2;
@@ -52,28 +52,31 @@ end
 
 %% SIMULATION %%
 
-ber_ldpc = zeros(iter,length(EbN0dB),length(R));
-fer_ldpc = zeros(iter,length(EbN0dB),length(R));
-
 tic
 if ~preset
+    ber_ldpc = zeros(length(ldpcIter),iter);
+    fer_ldpc = zeros(length(ldpcIter),iter);
     gammaDB = EbN0dB + 10*log(2*R);
     for i=1:length(ldpcIter)
-        parfor j=1:iter
+        for j=1:iter
             u_input = round(rand(1,mu));       % Random input sequence
             [u_output, ber_ldpc(i,j), fer_ldpc(i,j)] = ldpcTxSystem( u_input, R, gammaDB, mexEnabled, backSubstitution, ldpcIter(j));
         end    
+        disp(ldpcIter);
     end    
     ber_ldpc = sum(ber_ldpc,2)/iter;
     fer_ldpc = sum(fer_ldpc,2)/iter;            
 else
+    ber_ldpc = zeros(length(R),length(EbN0dB),iter);
+    fer_ldpc = zeros(length(R),length(EbN0dB),iter);
     for i=1:length(R)
         gammaDB = EbN0dB + 10*log(2*R(i));
         for j=1:length(gammaDB)
             parfor k=1:iter                
                 u_input = round(rand(1,mu));       % Random input sequence
                 [u_output, ber_ldpc(i,j,k), fer_ldpc(i,j,k)] = ldpcTxSystem( u_input, R(i), gammaDB(j), mexEnabled, backSubstitution);                
-            end            
+            end    
+            disp(j);
         end
     end    
     ber_ldpc = sum(ber_ldpc,3)/iter;

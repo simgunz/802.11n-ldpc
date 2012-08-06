@@ -4,7 +4,7 @@ function [ u_output, ber, fer ] = ldpcTxSystem( u_input, R, gammaDB, mexEnabled,
 if length(varargin)
     iteration = varargin{1};
 else
-    iteration = 40;
+    iteration = 25;
 end
 
 mu = length(u_input);            % Input length
@@ -100,7 +100,8 @@ checkOK = zeros(1,nCW);
     
 % Matrix M: Element (i,j) contains the message from the variable node j to the check node i
 % Matrix E: Element (i,j) contains the message from the check node i to the variable node j
-    
+
+
 for i=1:nCW                 % For each codeword            
 
     L = zeros(1,n);                           % Each element is the LLR of the corresponding variable node 

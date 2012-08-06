@@ -9,7 +9,10 @@ f = figure;
 
 if length(varargin)
     iteration = x;    
-    semilogy(iteration,fer_ldpc);        
+    semilogy(iteration,fer_ldpc,'-rd'); 
+    hold on;
+    plot(iteration,ber_ldpc,'--gs'); 
+    hold off;
     xlabel('Number of iteration');
     ylabel('FER');
     saveas(f,'output/FERvsITER');
