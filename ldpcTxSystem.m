@@ -63,8 +63,7 @@ if backSubstitution
             p2((j-1)*Z+1:j*Z) = prevp2;            
         end
         c(:,i) = [ payload; p1; p2];
-    end
-    %cc = toc;
+    end    
 else    
     c = mod(G*reshape(u_in,k,length(u_in)/k),2);    
 end

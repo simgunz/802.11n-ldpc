@@ -72,6 +72,7 @@ int decoder(int nmenok,int n,int nCW,double sigmaw2, mxArray **mxA, mxArray **mx
 
     iteration = 30;
     checkOK = 0;
+
     M = malloc(sizeof(double)*nmenok*n);
     E = malloc(sizeof(double)*nmenok*n);
     r = malloc(sizeof(double)*n);
@@ -81,26 +82,13 @@ int decoder(int nmenok,int n,int nCW,double sigmaw2, mxArray **mxA, mxArray **mx
         for (j=0;j<n;j++) {
             for (i=0;i<nmenok;i++) {
                 M[i+j*nmenok] = -rr[j+cw*n];
-                E[i+j*nmenok] = 0;
             }
             r[j] = rr[j+cw*n];
         }
 
-
-
         for (ii=0;ii<iteration;ii++) {
 
             cnmess(nmenok,n,M,mxB,E);
-
-            /*
-            if(!cw && ii==10)
-                for (i=25;i<30;i++) {
-                    for (j=0;j<5;j++) {
-                        mexPrintf("*%f",E[i+j*nmenok]);
-                    }
-                    mexPrintf("\n");
-                }
-            */
 
             for(vn=0;vn<n;vn++) {
                 A = mxGetPr(mxA[vn]);
@@ -111,8 +99,6 @@ int decoder(int nmenok,int n,int nCW,double sigmaw2, mxArray **mxA, mxArray **mx
                 }
                 yCap[vn] = Y(sum - r[vn]);
             }
-
-
 
             checkNOK=false;
             for(cn=0;cn<nmenok;cn++) {
@@ -126,36 +112,15 @@ int decoder(int nmenok,int n,int nCW,double sigmaw2, mxArray **mxA, mxArray **mx
                 }
             }
 
-            if(!checkNOK)
-            {
+            if(!checkNOK) {
                 checkOK++;
                 break;
             } else {
                 vnmess(nmenok,n,E,mxA,r,M);
             }
-
-            /*if(cw+ii==0)
-                for (i=25;i<30;i++) {
-                    for (j=0;j<5;j++) {
-                        mexPrintf("*%f",M[i+j*nmenok]);
-                    }
-                    mexPrintf("\n");
-                }*/
-
         }
 
-        if(cw==2)
-            for (j=0;j<15;j++) {
-                mexPrintf("*%d",yCap[j]);
-            }
-            mexPrintf("\n");
-        if(cw==3)
-            for (j=0;j<15;j++) {
-                mexPrintf("*%d",yCap[j]);
-            }
-
-        for(i=0;i<(n-nmenok);i++)
-        {
+        for(i=0;i<(n-nmenok);i++) {
             u_out[cw*(n-nmenok)+i] = yCap[i];
         }
 
@@ -169,11 +134,10 @@ int decoder(int nmenok,int n,int nCW,double sigmaw2, mxArray **mxA, mxArray **mx
 
 void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
 {
-    double *r,*u_out,*H;
+    double *r,*u_out,*H,*checkOK;
     double sigmaw2;
     int n,nmenok,nCW,i;
     const mxArray* temp_cell;
-
 
     nmenok = (int)mxGetScalar(prhs[0]);
     n = (int)mxGetScalar(prhs[1]);
@@ -184,13 +148,11 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mxArray *B[nmenok];
 
     temp_cell = prhs[4];
-    for(i=0;i<n;i++)
-    {
+    for(i=0;i<n;i++) {
         A[i]=mxGetCell(temp_cell,i);
     }
     temp_cell = prhs[5];
-    for(i=0;i<nmenok;i++)
-    {
+    for(i=0;i<nmenok;i++) {
         B[i]=mxGetCell(temp_cell,i);
     }
 
@@ -201,6 +163,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     u_out = mxGetPr(plhs[0]);
 
     plhs[1] = mxCreateDoubleScalar(0);
+    checkOK = mxGetPr(plhs[1]);
 
-    *(mxGetPr(plhs[1])) = decoder(nmenok,n,nCW,sigmaw2,A,B,r,H,u_out);
+    *checkOK = decoder(nmenok,n,nCW,sigmaw2,A,B,r,H,u_out);
 }

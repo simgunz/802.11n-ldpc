@@ -81,7 +81,6 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
 
             cnmess(nmenok,n,M,B,E);
 
-
             for(vn=0;vn<n;vn++) {
                 sum=0;
                 for(i=1;i<=A[vn];i++) {
@@ -89,8 +88,6 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
                 }
                 yCap[vn] = Y(sum - r[vn]);
             }
-
-
 
             checkNOK=false;
             for(cn=0;cn<nmenok;cn++) {
@@ -104,39 +101,17 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
                 }
             }
 
-            if(!checkNOK)
-            {
+            if(!checkNOK) {
                 checkOK++;
                 break;
             } else {
                 vnmess(nmenok,n,E,A,r,M);
             }
-
-            /*if(cw+ii==0)
-                for (i=25;i<30;i++) {
-                    for (j=0;j<5;j++) {
-                        mexPrintf("*%f",M[i+j*nmenok]);
-                    }
-                    mexPrintf("\n");
-                }*/
-
         }
 
-        if(cw==2)
-            for (j=0;j<15;j++) {
-                mexPrintf("*%d",yCap[j]);
-            }
-            mexPrintf("\n");
-        if(cw==3)
-            for (j=0;j<15;j++) {
-                mexPrintf("*%d",yCap[j]);
-            }
-
-        for(i=0;i<k;i++)
-        {
+        for(i=0;i<k;i++) {
             u_out[cw*k+i] = yCap[i];
         }
-
     }
 
     free(M);
