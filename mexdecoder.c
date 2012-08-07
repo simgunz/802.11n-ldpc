@@ -2,7 +2,7 @@
 #include "matrix.h"
 #include "math.h"
 
-#define Y(a) ((a) > (0) ? (0) : (1))
+#define Y(x) ((x) > (0) ? (0) : (1))
 
 double lntanh(double x)
 {
