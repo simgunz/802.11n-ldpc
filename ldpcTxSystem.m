@@ -100,17 +100,15 @@ checkOK = zeros(1,nCW);
 % Matrix M: Element (i,j) contains the message from the variable node j to the check node i
 % Matrix E: Element (i,j) contains the message from the check node i to the variable node j
 
+if mexEnabled
+    [u_out, checkOK] = mexdecoder(n-k,n,nCW,sigmaw2,A,B,2*r/sigmaw2,H);
+else
+    for i=1:nCW                 % For each codeword            
 
-for i=1:nCW                 % For each codeword            
+        L = zeros(1,n);                           % Each element is the LLR of the corresponding variable node 
+        M = ones(n-k,1) * (-2*r(:,i)/sigmaw2)';   % Initialize the LLR with the intrinsic information                
 
-    L = zeros(1,n);                           % Each element is the LLR of the corresponding variable node 
-    M = ones(n-k,1) * (-2*r(:,i)/sigmaw2)';   % Initialize the LLR with the intrinsic information                
-        
-    for ii=1:iteration
-         
-        if mexEnabled                
-            E = cnMess(M,B);                    
-        else
+        for ii=1:iteration            
             % For each check node compute the messages to the variable nodes        
             for cn=1:(n-k)
                 for vn=B{cn}                   
@@ -118,43 +116,36 @@ for i=1:nCW                 % For each codeword
                     E(cn,vn) = prod(sign(inM))*(lntanh(sum(lntanh(abs(inM)))));                
                 end            
             end 
-        end
-                        
-        if mexEnabled
-            L = getL(E,A,(2*r(:,i)/sigmaw2)');
-        else
+            
             % For each variable nodes compute the LLR as a sum of intrinsinc and extrinsing information
             for vn=1:n            
                 L(vn) = sum(E(A{vn},vn)) - 2*r(vn,i)/sigmaw2;             
             end 
-        end            
-        
-        % Get the estimated output from the llr
-        yCap = zeros(n,1);      
-        yCap(L<0) = 1;
-                
-        % If the estimated codeword satisfies
-        % all the check rules break the cycle        
-        if(~any(mod(H*yCap,2)))    
-            checkOK(i) = 1;
-            break;
-        else         
-            if mexEnabled
-                M = vnMess(E,A,(2*r(:,i)/sigmaw2)');
-            else            
+                      
+            % Get the estimated output from the llr
+            yCap = zeros(n,1);      
+            yCap(L<0) = 1;
+
+            % If the estimated codeword satisfies
+            % all the check rules break the cycle        
+            if(~any(mod(H*yCap,2)))    
+                checkOK(i) = 1;
+                break;
+            else                                   
                 for vn=1:n
                     for cn=A{vn}                    
                         M(cn,vn) = sum(E(A{vn}(A{vn}~=cn),vn)) - 2*r(vn,i)/sigmaw2;
                     end
                 end 
-            end
-        end                                     
-        
-    end
+            end                                     
 
-    % Finally extract the payload from the codeword
-    % quite easy since the code is in systema form
-    u_out(1,((i-1)*k+1):(i*k)) = yCap(1:k,1);    
+        end
+
+        % Finally extract the payload from the codeword
+        % quite easy since the code is in systema form
+        u_out(1,((i-1)*k+1):(i*k)) = yCap(1:k,1);    
+    end
+    checkOK = sum(checkOK);
 end
 
 % Remove the padding bits
@@ -162,7 +153,7 @@ u_output = u_out(1:mu);
 
 % Compute bit error rate and frame error rate
 ber = sum(u_output~=u_input)/mu;
-fer = 1 - sum(checkOK)/nCW;
+fer = 1 - checkOK/nCW;
 end
 
 

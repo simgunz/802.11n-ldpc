@@ -19,14 +19,14 @@ if length(varargin)
     saveas(f,'output/FERvsITER','pdf');
 else
     EbN0dB = x;        
-    semilogy(EbN0dB,ones(1,length(ber_ldpc)));
+    semilogy(EbN0dB,ones(1,length(ber_ldpc(1,:))));
     hold on;
-    for i=1:length(ber_ldpc(1,1,:))
-        plot(EbN0dB,ber_ldpc(:,:,i),berColor{i}); 
-        plot(EbN0dB,fer_ldpc(:,:,i),ferColor{i}); 
+    for i=1:length(ber_ldpc(:,1))
+        plot(EbN0dB,ber_ldpc(i,:),berColor{i}); 
+        plot(EbN0dB,fer_ldpc(i,:),ferColor{i}); 
     end
     hold off;    
-    legend('LDPC Simulated BER','Bad LDPC Simulated BER','Uncoded BER');
+    legend('LDPC Simulated BER','LDPC Simulated FER');
     xlabel('Eb/N0 [dB]');
     ylabel('BER/FER');
     saveas(f,'output/BEReFERvsEbN0');
