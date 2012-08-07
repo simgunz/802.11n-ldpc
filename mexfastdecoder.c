@@ -58,11 +58,11 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
     double *M,*E;
     double *r;
     double sum;
-    int sizeA,sizeB,binsum,yCap[n],checkOK,NcheckOK;
+    int sizeA,sizeB,binsum,checkOK,yCap[n];
+    bool checkNOK;
 
     nmenok = n-k;
     checkOK = 0;
-    NcheckOK = 0;
 
     M = malloc(sizeof(double)*nmenok*n);
     E = malloc(sizeof(double)*nmenok*n);
@@ -77,11 +77,10 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
             r[j] = rr[j+cw*n];
         }
 
-        ii=0;
-        checkOK = 0;
-        while(!checkOK && ii<iter) {
+        for (ii=0;ii<iter;ii++) {
 
             cnmess(nmenok,n,M,B,E);
+
 
             for(vn=0;vn<n;vn++) {
                 sum=0;
@@ -92,30 +91,52 @@ int decoder(int k,int n,int nCW,double sigmaw2, double *A, double *B, double *H,
             }
 
 
-            cn=0;
-            binsum=0;
-            while(!(binsum & 1) && cn<nmenok) {
+
+            checkNOK=false;
+            for(cn=0;cn<nmenok;cn++) {
                 binsum=0;
                 for(vn=0;vn<n;vn++) {
                     binsum += H[cn+vn*nmenok]*yCap[vn];
                 }
-                cn++;
+                if(binsum & 1) {
+                    checkNOK = true;
+                    break;
+                }
             }
 
-            if(!(binsum & 1)) {
-                checkOK=1;
+            if(!checkNOK)
+            {
+                checkOK++;
+                break;
             } else {
                 vnmess(nmenok,n,E,A,r,M);
-                ii++;
             }
+
+            /*if(cw+ii==0)
+                for (i=25;i<30;i++) {
+                    for (j=0;j<5;j++) {
+                        mexPrintf("*%f",M[i+j*nmenok]);
+                    }
+                    mexPrintf("\n");
+                }*/
+
         }
 
-        NcheckOK += checkOK;
+        if(cw==2)
+            for (j=0;j<15;j++) {
+                mexPrintf("*%d",yCap[j]);
+            }
+            mexPrintf("\n");
+        if(cw==3)
+            for (j=0;j<15;j++) {
+                mexPrintf("*%d",yCap[j]);
+            }
 
         for(i=0;i<k;i++)
         {
             u_out[cw*k+i] = yCap[i];
         }
+
     }
 
     free(M);
