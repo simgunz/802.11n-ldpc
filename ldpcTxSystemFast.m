@@ -50,7 +50,7 @@ nCW = ceil(mu/k);                   % Number of codewords
 Npad = nCW*k - mu;                  % Number of padding bits
 u_in = [ u_input zeros(1,Npad) ];
 
-if backSubstitution
+if backSubstitution         % Encoding by backsubstitution
     c = zeros(n,nCW);
     H1 = H(:,1:k);
     H2 = H(:,(k+1):(k+Z));    
@@ -71,9 +71,8 @@ if backSubstitution
             p2((j-1)*Z+1:j*Z) = prevp2;            
         end
         c(:,i) = [ payload; p1; p2];
-    end
-    %cc = toc;
-else    
+    end    
+else        % Enconding by matrix product
     c = mod(G*reshape(u_in,k,length(u_in)/k),2);    
 end
 
@@ -101,7 +100,7 @@ r = reshape(r,n,length(r)/n);
 
 %%% MESSAGE PASSING DECODER %%%
 
-sigmaw2 = 1/(10^(gammaDB/10));
+sigmaw2 = 1/(10^(gammaDB/10));      % Noise variance
         
 [u_out, checkOK] = mexfastdecoder(k,n,nCW,sigmaw2,A,B,H,2*r/sigmaw2,iterations);
 

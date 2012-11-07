@@ -8,9 +8,9 @@ col = 24;               % Number of submatrices in a row
 
 if R == 1/2
     row = 12;           % Number of submatrices in a column
-    rStr = '12';
+    rStr = '12';        % Rate in string form (12 = 1/2)
 elseif R == 2/3
-    row= 8;
+    row = 8;
     rStr = '23';
 elseif R == 3/4
     row = 6;

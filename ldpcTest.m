@@ -13,10 +13,10 @@ backSubstitution = 1;       % Enable encoding by back substitution
 % 2: Rate 1/2 longer input, less accurate BER and FER test
 % 3: Rate comparison, less accurate BER and FER test
 % 4: Manual
- preset = 1;
+preset = 4;
 
 % Manual mode parameters
-mu = 10^6;               % Input length
+mu = 10^4;               % Input length
 R = 1/2;                 % Code rate. Available rates 1/2, 2/3, 3/4, 5/6
 iter = 1 ;               % Number of simulations (100 for good results)
 EbN0step = 0.25;         % Set to 0.5 to speed things up

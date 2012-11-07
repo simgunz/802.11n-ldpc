@@ -11,41 +11,17 @@ backSubstitution = 1;       % Enable encoding by back substitution
 % 1: Rate 1/2 accurate BER and FER test
 % 2: Rate comparison, less accurate BER and FER test
 % 3: Manual
-preset = 0;
+preset = 3;
 
 % Manual mode parameters
-mu = 10^6;               % Input length
+mu = 100000;               % Input length
 R = 1/2;                 % Code rate. Available rates 1/2, 2/3, 3/4, 5/6
 iter = 1 ;               % Number of simulations (100 for good results)
 EbN0step = 0.25;         % Set to 0.5 to speed things up
-EbN0dB = 1:EbN0step:2.5; %Eb/N0 values
+EbN0dB = 1:EbN0step:2.25; %Eb/N0 values
 
 
 %% PRESET %%
-
-% switch preset
-%     case 0,
-%         mu = 10^6;
-%         R = 1/2;
-%         iter = 100;
-%         ldpcIter = 1:50;
-%         EbN0dB = 1.5;
-%     case 1,
-%         mu = 10^7;
-%         R = 1/2;
-%         iter = 50;
-%         EbN0dB = 1:EbN0step:3;                
-%     case 2,
-%         mu = 10^7;
-%         R = 1/2;
-%         iter = 2;
-%         EbN0dB = 1:EbN0step:2.5;        
-%     case 3,
-%         mu = 10^6;
-%         R = [1/2, 2/3, 3/4, 5/6];
-%         iter = 1;
-%         EbN0dB = 1:EbN0step:2.25;        
-% end
 
 switch preset
     case 0,                 % 2 giorni
@@ -55,11 +31,11 @@ switch preset
         ldpcIter = 1:50;
         EbN0dB = 1.5;
     case 1,                 % 34 ore
-        mu = 10000;
+        mu = 1000;
         R = 1/2;
         iter = 100;
         EbN0dB = 1.5;                       
-    case 2,
+    case 2,                 % Stima 3 ore (con 1 iterazione)
         mu = 10^7;
         R = [1/2, 2/3, 3/4, 5/6];
         iter = 1;
