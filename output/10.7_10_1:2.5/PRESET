@@ -1,0 +1,5 @@
+mu = 10^7;
+R = 1/2;
+iter = 10;
+EbN0step = 0.25
+EbN0dB = 1:EbN0step:2.5;

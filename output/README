@@ -1,0 +1,9 @@
+Notazione
+
+10.x_y_z
+
+10.x    Inputlength (x = Potenza di 10)
+
+y       Number of iteration
+
+z       EbN0dB (it's a range for BER/FER test and a single value for FERvsITER)
