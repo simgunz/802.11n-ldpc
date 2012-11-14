@@ -3,6 +3,7 @@ clc;clear all;close all;
 %% TUNABLE PARAMETERS %%
 
 backSubstitution = 1;       % Enable encoding by back substitution
+parallelComputation = 0;    % Do not enable this if the matrices are not been created!
 
 % Parameters presets:
 % 0: BER vs Iterations test
@@ -10,10 +11,10 @@ backSubstitution = 1;       % Enable encoding by back substitution
 % 2: Rate 5/6 accurate BER and FER test
 % 3: Rates comparison, accurate
 % 4: Manual
-preset = 1;
+preset = 4;
 
 % Manual mode parameters
-mu = 10^7;                % Input length
+mu = 10^5;                % Input length
 R = 1/2;                  % Code rate. Available rates 1/2, 2/3, 3/4, 5/6
 iter = 1;                 % Number of simulations (100 for good results)
 EbN0step = 0.25;          % Set to 0.5 to speed things up
@@ -50,7 +51,9 @@ end
 
 %% SIMULATION %%
 
-matlabpool open;    % Enable parallel computation                   
+if(~matlabpool('size') && parallelComputation)
+    matlabpool open;    % Enable parallel computation                   
+end
 
 tic
 if ~preset
@@ -84,7 +87,9 @@ else
 end
 time = toc        % Get the simulation time
 
-matlabpool close;
+if(matlabpool('size') && parallelComputation)
+    matlabpool close;
+end
 
 %% SAVE DATA %%
 if ~exist('output','dir')
