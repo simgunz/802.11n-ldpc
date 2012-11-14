@@ -2,7 +2,7 @@ function [ H, Z ] = buildH( n, R )
 %BUILDH Creates the parity check matrix H (reading the prototype from file)
 % for codeword length n and rate R
 
-Zsize = [27, 54, 81];           % Square submatrices available size
+Zsize = [27, 54, 81];   % Square submatrices available size
 
 col = 24;               % Number of submatrices in a row
 
@@ -21,9 +21,9 @@ else
 end
 
 % This block will be needed only if the support for different
-% codeword size will be implemented 
-if n == 648         
-    Z = Zsize(1);    
+% codeword size will be implemented
+if n == 648
+    Z = Zsize(1);
 elseif n == 1296
     Z = Zsize(2);
 else
@@ -31,8 +31,8 @@ else
 end
 
 
-if(exist(['Matrix/H',num2str(n),'_',rStr,'.mat'],'file'))
-    load(['Matrix/H',num2str(n),'_',rStr],'H');
+if(exist(['matrix/H',num2str(n),'_',rStr,'.mat'],'file'))
+    load(['matrix/H',num2str(n),'_',rStr],'H');
 else
     H = zeros(row*Z,col*Z);
 
@@ -49,14 +49,14 @@ else
                 A = eye(Z);
                 k = protoH(i,j);
                 H((i-1)*Z+1:(i-1)*Z+Z,(j-1)*Z+1:(j-1)*Z+Z) = circshift(A,[0 k]);
-            end        
+            end
         end
     end
-    
-    if ~exist('Matrix','dir')
-        mkdir('Matrix');
+
+    if ~exist('matrix','dir')
+        mkdir('matrix');
     end
-    save(['Matrix/H',num2str(n),'_',rStr],'H');     % Store the matrix to save computation time
+    save(['matrix/H',num2str(n),'_',rStr],'H');     % Store the matrix to save computation time
 end
 
 end

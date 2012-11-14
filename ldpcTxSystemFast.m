@@ -4,7 +4,7 @@ function [ u_output, ber, fer ] = ldpcTxSystemFast( u_input, R, gammaDB, backSub
 if length(varargin)
     iterations = varargin{1};
 else
-    iterations = 25;
+    iterations = 40;
 end
 
 mu = length(u_input);            % Input length
@@ -16,7 +16,7 @@ mu = length(u_input);            % Input length
 n = 1944;   % Codeword length
 k = n*R;    % Payload length
 
-%%% PARITY CHECK MATRIX %%%%
+%% PARITY CHECK MATRIX %%
 
 if backSubstitution
     [H,Z] = buildH(n,R);
@@ -44,7 +44,7 @@ for cn=1:(n-k)
 end
 
 
-%%%%%%% ENCODER %%%%%%%
+%% ENCODER %%
 
 nCW = ceil(mu/k);                   % Number of codewords
 Npad = nCW*k - mu;                  % Number of padding bits
@@ -53,10 +53,10 @@ u_in = [ u_input zeros(1,Npad) ];
 if backSubstitution         % Encoding by backsubstitution
     c = zeros(n,nCW);
     H1 = H(:,1:k);
-    H2 = H(:,(k+1):(k+Z));    
-    
+    H2 = H(:,(k+1):(k+Z));
+
     for i=1:nCW
-        payload = u_in((i-1)*k+1:i*k)';        
+        payload = u_in((i-1)*k+1:i*k)';
         s = H1 * payload;
         s = reshape(s,Z,(n-k)/Z);
         p1 = mod(sum(s,2),2);
@@ -68,40 +68,40 @@ if backSubstitution         % Encoding by backsubstitution
         p2 = zeros(ll*Z,1);
         for j=1:ll
             prevp2 = mod(stilda(:,j) + prevp2,2);
-            p2((j-1)*Z+1:j*Z) = prevp2;            
+            p2((j-1)*Z+1:j*Z) = prevp2;
         end
         c(:,i) = [ payload; p1; p2];
-    end    
+    end
 else        % Enconding by matrix product
-    c = mod(G*reshape(u_in,k,length(u_in)/k),2);    
+    c = mod(G*reshape(u_in,k,length(u_in)/k),2);
 end
 
 
-%%%%%%%%% P/S %%%%%%%%%
+%% P/S %%
 
 d = c(:)';
 
 
-%%% BPAM MODULATOR %%%%
+%% BPAM MODULATOR %%
 
 sTx = d;
 sTx(sTx==0) = -1;    % Map 0 to -1 and produce the transmitted signal
 
 
-%%%%%%% CHANNEL %%%%%%%
+%% CHANNEL %%
 
 r = awgn(sTx,gammaDB);          % Received signal
 
 
-%%%%%%%%% S/P %%%%%%%%%
+%% S/P %%
 
 r = reshape(r,n,length(r)/n);
 
 
-%%% MESSAGE PASSING DECODER %%%
+%% MESSAGE PASSING DECODER %%
 
 sigmaw2 = 1/(10^(gammaDB/10));      % Noise variance
-        
+
 [u_out, checkOK] = mexfastdecoder(k,n,nCW,sigmaw2,A,B,H,2*r/sigmaw2,iterations);
 
 % Remove the padding bits

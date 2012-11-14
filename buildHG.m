@@ -6,34 +6,34 @@ function [ H, G, Z ] = buildHG( n, R )
 
 if R == 1/2
     rStr = '12';
-elseif R == 2/3    
+elseif R == 2/3
     rStr = '23';
-elseif R == 3/4    
+elseif R == 3/4
     rStr = '34';
-else    
+else
     rStr = '56';
 end
 
-if(exist(['Matrix/',num2str(n),'_',rStr,'.mat'],'file'))    
-    load(['Matrix/',num2str(n),'_',rStr],'G');
-else      
+if(exist(['matrix/',num2str(n),'_',rStr,'.mat'],'file'))
+    load(['matrix/',num2str(n),'_',rStr],'G');
+else
     gfH = gf(H);
     k = n*R;
     B = gfH(:,1:n-k);
     C = gfH(:,n-k+1:n);
     C1 = inv(C);            % Very slow operation
     G = [eye(k);C1*B];
-    
-    CHECK = gfH*G;    
+
+    CHECK = gfH*G;
     if any(CHECK(:))
         disp('G is not correct');
         return
     end
-    
-    if ~exist('output','dir')
-        mkdir('Matrix');    
+
+    if ~exist('matrix','dir')
+        mkdir('matrix');
     end
-    save(['Matrix/',num2str(n),'_',rStr],'G','-append');
+    save(['matrix/',num2str(n),'_',rStr],'G','-append');
 end
 G = double(G.x);
 

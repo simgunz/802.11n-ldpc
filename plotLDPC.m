@@ -1,18 +1,18 @@
 function [ ] = plotLDPC( x, ber_ldpc, fer_ldpc, varargin)
-%PLOTLDPC Summary of this function goes here
-%   Detailed explanation goes here
 
 berColor = {'--sb','--+r','--dg','--om'};
 ferColor = {'-sb','-+r','-dg','-om'};
+leg = {'LDPC Simulated BER, Rate 1/2','LDPC Simulated FER, Rate 1/2','LDPC Simulated BER, Rate 2/3','LDPC Simulated FER, Rate 2/3','LDPC Simulated BER, Rate 3/4','LDPC Simulated FER, Rate 3/4','LDPC Simulated BER, Rate 5/6','LDPC Simulated FER, Rate 5/6'};
 
 f = figure;
 
-if length(varargin)
+if length(varargin)     % Use variable input length to select the kind of graph
     iteration = x;    
     semilogy(iteration,fer_ldpc,'-rd'); 
     hold on;
     plot(iteration,ber_ldpc,'--gs'); 
     hold off;
+    grid on;
     xlabel('Number of iteration');
     ylabel('FER');
     saveas(f,'output/FERvsITER');
@@ -22,11 +22,14 @@ else
     semilogy(EbN0dB(1),1,'r');
     hold on;
     for i=1:length(ber_ldpc(:,1))
-        h1=plot(EbN0dB,ber_ldpc(i,:),berColor{i}); 
-        h2=plot(EbN0dB,fer_ldpc(i,:),ferColor{i}); 
+        h1(i)=plot(EbN0dB,ber_ldpc(i,:),berColor{i}); 
+        h2(i)=plot(EbN0dB,fer_ldpc(i,:),ferColor{i}); 
     end
-    hold off;    
-    legend([h1 h2],'LDPC Simulated BER','LDPC Simulated FER');
+    hold off; 
+    h = [h1; h2];
+    h = h(:);    
+    leg = leg(1:length(h));
+    legend(h,leg);
     xlabel('E_b/N_0 [dB]');
     ylabel('BER/FER');
     grid on;

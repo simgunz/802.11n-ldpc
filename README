@@ -1,0 +1,15 @@
+Note
+
+builHG          >       Only needed if not usign back substitution  (very slow)
+ldpcTxSystem    >       Contain the message passing decoder matlab implementation (very slow)
+                        Contain a message passing decoder C implementation [mexdecoder.c] (faster but not optimal)
+ldpcTxSystemFast>       Contain a message passing decoder C implementation [mexfastdecoder.c] (fastest, but break the compatibility with the previous matlab code)
+ldpcTest        >       Test for ldpcTxSystem
+ldpcTestFast    >       Test for ldpcTxSystemFast
+
+
+Not really useful file (SHOULD BE CONSIDERED DEPRECATED):
+buildHG
+ldpcTxSystem
+ldpcTest
+mexdecoder.c

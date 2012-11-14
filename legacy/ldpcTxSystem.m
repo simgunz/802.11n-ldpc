@@ -16,7 +16,7 @@ mu = length(u_input);            % Input length
 n = 1944;   % Codeword length
 k = n*R;    % Payload length
 
-%%% PARITY CHECK MATRIX %%%%
+%% PARITY CHECK MATRIX %%
 
 if backSubstitution
     [H,Z] = buildH(n,R);
@@ -36,7 +36,7 @@ for cn=1:(n-k)
 end
 
 
-%%%%%%% ENCODER %%%%%%%
+%% ENCODER %%
 
 nCW = ceil(mu/k);                   % Number of codewords
 Npad = nCW*k - mu;                  % Number of padding bits
@@ -69,28 +69,28 @@ else
 end
 
 
-%%%%%%%%% P/S %%%%%%%%%
+%% P/S %%
 
 d = c(:)';
 
 
-%%% BPAM MODULATOR %%%%
+%% BPAM MODULATOR %%
 
 sTx = d;
 sTx(sTx==0) = -1;    % Map 0 to -1 and produce the transmitted signal
 
 
-%%%%%%% CHANNEL %%%%%%%
+%% CHANNEL %%
 
 r = awgn(sTx,gammaDB);          % Received signal
 
 
-%%%%%%%%% S/P %%%%%%%%%
+%% S/P %%
 
 r = reshape(r,n,length(r)/n);
 
 
-%%% MESSAGE PASSING DECODER %%%
+%% MESSAGE PASSING DECODER %%
 
 u_out = zeros(1,length(u_in));
 sigmaw2 = 1/(10^(gammaDB/10));

@@ -8,12 +8,11 @@ mexEnabled = 1;             % Enable the C++ version of the decoder
 backSubstitution = 1;       % Enable encoding by back substitution
 
 % Parameters presets:
-% 0: BER vs iteration test
+% 0: BER vs Iterations test
 % 1: Rate 1/2 accurate BER and FER test
 % 2: Rate 1/2 longer input, less accurate BER and FER test
-% 3: Rate comparison, less accurate BER and FER test
-% 4: Manual
-preset = 4;
+% 3: Manual
+preset = 3;
 
 % Manual mode parameters
 mu = 10^4;               % Input length
@@ -41,12 +40,7 @@ switch preset
         mu = 10^7;
         R = 1/2;
         iter = 2;
-        EbN0dB = 1:EbN0step:2.5;        
-    case 3,
-        mu = 10^6;
-        R = [1/2, 2/3, 3/4, 5/6];
-        iter = 24;
-        EbN0dB = 1:EbN0step:2.5;        
+        EbN0dB = 1:EbN0step:2.5;               
 end
 
 
@@ -56,7 +50,7 @@ tic
 if ~preset
     ber_ldpc = zeros(length(ldpcIter),iter);
     fer_ldpc = zeros(length(ldpcIter),iter);
-    gammaDB = EbN0dB + 10*log(2*R);
+    gammaDB = EbN0dB + 10*log10(2*R);
     for i=1:length(ldpcIter)
         for j=1:iter
             u_input = round(rand(1,mu));       % Random input sequence
@@ -70,7 +64,7 @@ else
     ber_ldpc = zeros(length(R),length(EbN0dB),iter);
     fer_ldpc = zeros(length(R),length(EbN0dB),iter);
     for i=1:length(R)
-        gammaDB = EbN0dB + 10*log(2*R(i));
+        gammaDB = EbN0dB + 10*log10(2*R(i));
         for j=1:length(gammaDB)
             parfor k=1:iter                
                 u_input = round(rand(1,mu));       % Random input sequence
