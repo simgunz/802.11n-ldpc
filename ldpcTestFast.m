@@ -51,8 +51,8 @@ end
 
 %% SIMULATION %%
 
-if(~matlabpool('size') && parallelComputation)
-    matlabpool open;    % Enable parallel computation                   
+if(parallelComputation && isempty(gcp('nocreate')))
+    parpool;   % Enable parallel computation
 end
 
 tic
@@ -87,8 +87,8 @@ else
 end
 time = toc        % Get the simulation time
 
-if(matlabpool('size') && parallelComputation)
-    matlabpool close;
+if(parallelComputation && ~isempty(gcp('nocreate')))
+    delete(gcp('nocreate'));
 end
 
 %% SAVE DATA %%
