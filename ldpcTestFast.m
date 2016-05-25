@@ -55,6 +55,7 @@ if(parallelComputation && isempty(gcp('nocreate')))
     parpool;   % Enable parallel computation
 end
 
+fprintf('Running simulation...');
 tic
 if ~preset
     all_ber_ldpc = zeros(length(ldpcIter),iter);
