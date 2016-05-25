@@ -100,9 +100,9 @@ save('output/workspace');
 
 
 %% PLOT %%
-
+epsilon = 1e-12; % Used to display the zeros in the log plot
 if ~preset
-    plotLDPC(ldpcIter, ber_ldpc, fer_ldpc, 1);
+    plotLDPC(ldpcIter, ber_ldpc + epsilon, fer_ldpc + epsilon, 1);
 else
-    plotLDPC(EbN0dB, ber_ldpc, fer_ldpc);
+    plotLDPC(EbN0dB, ber_ldpc + epsilon, fer_ldpc + epsilon);
 end
