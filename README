@@ -13,3 +13,9 @@ buildHG
 ldpcTxSystem
 ldpcTest
 mexdecoder.c
+
+## MATLAB R2016
+
+From this version of MATLAB (maybe also others before), MATLAB tries to start a parallel pool automatically when a parfor keywork is reached, making the flag parallelComputation unuseful.
+
+To disable this go to unchek Preferences > Parallel computating toolbox > Automaticallly create parallel pool.
